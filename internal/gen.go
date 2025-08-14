@@ -193,8 +193,10 @@ func pyInnerType(req *plugin.GenerateRequest, col *plugin.Column) string {
 	switch req.Settings.Engine {
 	case "postgresql":
 		return postgresType(req, col)
+	case "mysql":
+		return mysqlType(req, col)
 	default:
-		log.Println("unsupported engine type")
+		log.Printf("unsupported engine type: %s\n", req.Settings.Engine)
 		return "Any"
 	}
 }
@@ -359,6 +361,14 @@ func sqlalchemySQL(s, engine string) string {
 	s = strings.ReplaceAll(s, ":", `\\:`)
 	if engine == "postgresql" {
 		return postgresPlaceholderRegexp.ReplaceAllString(s, ":p$1")
+	}
+	if engine == "mysql" {
+		// Convert MySQL ? placeholders to named parameters for SQLAlchemy compatibility
+		i := 1
+		for strings.Contains(s, "?") {
+			s = strings.Replace(s, "?", fmt.Sprintf(":p%d", i), 1)
+			i++
+		}
 	}
 	return s
 }
