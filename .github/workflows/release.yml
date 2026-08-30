@@ -1,0 +1,46 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-go@v5
+      with:
+        go-version: '1.23.5'
+    - uses: sqlc-dev/setup-sqlc@v4
+      with:
+        sqlc-version: '1.28.0'
+    - run: make
+    - run: make test
+
+    - name: Get version
+      id: get_version
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/}
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Prepare release artifacts
+      run: |
+        cd bin
+        sha256sum sqlc-gen-python.wasm > sqlc-gen-python_${{ steps.get_version.outputs.VERSION }}_checksums.txt
+        cp sqlc-gen-python.wasm sqlc-gen-python_${{ steps.get_version.outputs.VERSION }}.wasm
+        ls -la
+
+    - name: Create Release and Upload Assets
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          bin/sqlc-gen-python_${{ steps.get_version.outputs.VERSION }}.wasm
+          bin/sqlc-gen-python_${{ steps.get_version.outputs.VERSION }}_checksums.txt
