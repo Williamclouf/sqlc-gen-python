@@ -612,12 +612,34 @@ func pydanticNode(name string) *pyast.ClassDef {
 }
 
 func fieldNode(f Field) *pyast.Node {
+	Ann := f.Type.Annotation()
+	var AssValue *pyast.Node = nil
+
+	subscript, ok := Ann.Node.(*pyast.Node_Subscript)
+	if ok {
+		if subscript == nil || subscript.Subscript == nil {
+			panic("subscript is nil")
+		}
+
+		value := subscript.Subscript.Value
+
+		if value.Id == "Optional" {
+			AssValue = &pyast.Node{
+				Node: &pyast.Node_Constant{
+					Constant: &pyast.Constant{
+						Value: &pyast.Constant_None{},
+					},
+				},
+			}
+		}
+	}
 	return &pyast.Node{
 		Node: &pyast.Node_AnnAssign{
 			AnnAssign: &pyast.AnnAssign{
 				Target:     &pyast.Name{Id: f.Name},
-				Annotation: f.Type.Annotation(),
+				Annotation: Ann,
 				Comment:    f.Comment,
+				Value:      AssValue,
 			},
 		},
 	}

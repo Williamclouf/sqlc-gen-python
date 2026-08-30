@@ -113,6 +113,13 @@ func TestPrinter(t *testing.T) {
 												},
 											},
 										},
+										Value: &ast.Node{
+											Node: &ast.Node_Constant{
+												Constant: &ast.Constant{
+													Value: &ast.Constant_None{},
+												},
+											},
+										},
 									},
 								},
 							},
@@ -124,7 +131,7 @@ func TestPrinter(t *testing.T) {
 @dataclass
 class Foo:
     bar: int
-    bat: Optional[int]
+    bat: Optional[int] = None
 `,
 		},
 		"call": {

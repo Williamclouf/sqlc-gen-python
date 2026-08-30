@@ -61,6 +61,7 @@ message AnnAssign
   Node annotation = 2 [json_name="annotation"];
   int32 simple = 3 [json_name="simple"];
   string Comment = 4 [json_name="comment"];
+  Node value = 5 [json_name="value"];
 }
 
 message Arg

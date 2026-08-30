@@ -8,4 +8,4 @@ from typing import Optional
 class Author(pydantic.BaseModel):
     id: int
     name: str
-    bio: Optional[str]
+    bio: Optional[str] = None

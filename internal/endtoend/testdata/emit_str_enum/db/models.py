@@ -16,4 +16,4 @@ class BookStatus(enum.StrEnum):
 class Book:
     id: int
     title: str
-    status: Optional[BookStatus]
+    status: Optional[BookStatus] = None
